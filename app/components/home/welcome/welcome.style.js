@@ -39,6 +39,13 @@ const styles = StyleSheet.create({
     height: "100%",
     paddingHorizontal: SIZES.medium,
   },
+  Btn: {
+    width: 80,
+    backgroundColor: COLORS.tertiary,
+    borderRadius: SIZES.medium,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   searchBtn: {
     width: 50,
     height: "100%",
