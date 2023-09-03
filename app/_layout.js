@@ -3,7 +3,7 @@ import {useCallback} from "react";
 import {useFonts} from "expo-font";
 import * as SplashScreen from 'expo-splash-screen'
 import {AuthProvider} from "./context/ContextProvider";
-
+import { NativeBaseProvider } from "native-base";
 
 const Layout = () => {
     const [fontsLoaded] = useFonts({
@@ -23,6 +23,7 @@ const Layout = () => {
     return (
 
                     <AuthProvider>
+                        <NativeBaseProvider >
                         <Stack>
                             <Stack.Screen
                                 name="(mainScreen)"
@@ -31,6 +32,7 @@ const Layout = () => {
                                 }}
                             />
                         </Stack>
+                            </NativeBaseProvider>
                     </AuthProvider>
     )
 }
