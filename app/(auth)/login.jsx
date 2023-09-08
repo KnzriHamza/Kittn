@@ -1,4 +1,3 @@
-import {View, Text,  TextInput} from "react-native";
 import { useAuth } from "../context/ContextProvider";
 
 import {
@@ -7,32 +6,48 @@ import {
     Box,
     Button,
     Center,
-    Container, Flex,
-    FormControl,
-    Heading,
+    Text,
+    FormControl, Heading, HStack,
     Icon,
     Input,
-    Pressable,
     VStack,
     WarningOutlineIcon
 } from "native-base";
 import {MaterialIcons} from "@expo/vector-icons";
-import {useState} from "react";
+import {useRef, useState} from "react";
 import {Link, Stack} from "expo-router";
-import {COLORS, icons, images} from "../constants";
-import {ScreenHeaderBtn} from "../components";
-export default function Login() {
-    const { setUser } = useAuth();
-    const [show, setShow] = useState(false);
-    const login = () => {
-        setUser({
-            name: "John Doe",
-        });
-    }
+import axios from "axios";
+import axiosClient from "../axios-client";
 
-    const toRegister = ({navigation}) => {
-        navigation.navigate('Details')
-    }
+
+export default function Login() {
+    const { setUser, setToken } = useAuth();
+    const [show, setShow] = useState(false);
+    const [email, setEmail] = useState()
+    const [password, setPassword] = useState()
+    const [errors, setErrors] = useState(null);
+    const [username, setUserName] = useState(null);
+
+    const onSubmit = async () => {
+        const payload = {
+            email: "a@admin.com",
+            password: "q@123456789"
+        };
+
+        axiosClient
+            .post("/login", payload)
+            .then(({ data }) => {
+                setUser(data.user)
+                setToken(data.token)
+                //console.log("login token",data.token)
+            })
+            .catch((err) => {
+                console.error("Login request failed:", err);
+
+            });
+    };
+
+
 
     return (
         <Center>
@@ -43,52 +58,53 @@ export default function Login() {
 
                 }}
             />
-            <Container >
-                <VStack space={2.5} w="100%" px="3" paddingTop="25%">
+            <Box safeArea marginTop="16" p="2" py="8" w="90%" maxW="290">
+                <Heading size="lg" fontWeight="600" color="coolGray.800" _dark={{
+                    color: "warmGray.50"
+                }}>
+                    Welcome
+                </Heading>
+                <Heading mt="1" _dark={{
+                    color: "warmGray.200"
+                }} color="coolGray.600" fontWeight="medium" size="xs">
+                    Sign in to continue!
+                </Heading>
 
-
-                       <Avatar bg="purple.600" alignSelf="center" size="2xl" source={{
-                           uri: "https://images.unsplash.com/photo-1510771463146-e89e6e86560e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=627&q=80"
-                       }}>
-                           RB
-                       </Avatar>
-                       <FormControl  isInvalid w="75%" maxW="300px">
-
-                           <VStack space={2.5}>
-                               <Box>
-                                   <FormControl.Label>Email</FormControl.Label>
-                                   <Input w={{
-                                       base: "100%",
-                                       md: "25%"
-                                   }} InputLeftElement={<Icon as={<MaterialIcons name="person" />} size={5} ml="2" color="muted.400" />} placeholder="Name" />
-                                   <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-                                       Try different from previous passwords.
-                                   </FormControl.ErrorMessage>
-                               </Box>
-
-
-
-                               <Box>
-                                   <FormControl.Label>Password</FormControl.Label>
-                                   <Input placeholder="Enter password" />
-                                   <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-                                       Try different from previous passwords.
-                                   </FormControl.ErrorMessage>
-
-                               </Box>
-
-
-                               <Button onPress={login}>Login</Button>
-                               <Link href="/register">
-                                   Click here to Register.
-                               </Link>
-                           </VStack>
-
-                       </FormControl>
-
-
-                </VStack>;
-            </Container>
+                <VStack space={3} mt="5">
+                    <FormControl>
+                        <FormControl.Label>Email ID</FormControl.Label>
+                        <Input />
+                    </FormControl>
+                    <FormControl>
+                        <FormControl.Label>Password</FormControl.Label>
+                        <Input type="password" />
+                        <Link _text={{
+                            fontSize: "xs",
+                            fontWeight: "500",
+                            color: "indigo.500"
+                        }} alignSelf="flex-end" mt="1" href="">
+                            Forget Password?
+                        </Link>
+                    </FormControl>
+                    <Button onPress={onSubmit} Login mt="2" colorScheme="indigo">
+                        Sign in
+                    </Button>
+                    <HStack mt="6" justifyContent="center">
+                        <Text fontSize="sm" color="coolGray.600" _dark={{
+                            color: "warmGray.200"
+                        }}>
+                            I'm a new user.{" "}
+                        </Text>
+                        <Link _text={{
+                            color: "indigo.500",
+                            fontWeight: "medium",
+                            fontSize: "sm"
+                        }} href="/register">
+                            Sign Up
+                        </Link>
+                    </HStack>
+                </VStack>
+            </Box>
         </Center>
 
 

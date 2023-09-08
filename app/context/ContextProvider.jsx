@@ -1,50 +1,68 @@
-import {useSegments, useRouter, useRootNavigationState} from "expo-router";
 import { createContext, useContext, useEffect, useState } from "react";
-
+import { useSegments, useRouter, useRootNavigationState } from "expo-router";
+import SecureStore from "@react-native-async-storage/async-storage/src"; // Corrected import order
 
 const AuthContext = createContext({
     user: null,
+    token: null,
     setUser: () => {},
+    setToken: () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
 
-function useProtectedRoute(user) {
+function useProtectedRoute(user, token) { // Pass both user and token as parameters
     const segments = useSegments();
     const router = useRouter();
     const navigationState = useRootNavigationState();
     useEffect(() => {
 
-        //the was that react loads the login page before loading the main layout this fixes it
+        // The way that React loads the login page before loading the main layout; this fixes it
 
         if (!navigationState?.key) return;
 
-        //
         const inAuthGroup = segments[0] === "(auth)";
-
         if (
-            // If the user is not signed in and the initial segment is not anything in the auth group.
-            !user &&
+            // If the user is not signed in, the token is missing, and the initial segment is not anything in the auth group.
+            /* !user &&
+            !token &&
+            !inAuthGroup. */
+
+            (!user || !token) &&
             !inAuthGroup
         ) {
             // Redirect to the sign-in page.
+            SecureStore.removeItem("ACCESS_TOKEN");
             router.replace("/login");
-        } else if (user && inAuthGroup) {
+
+        } else if (user && token && inAuthGroup) {
             // Redirect away from the sign-in page.
-            router.replace("/");
+
+
+                SecureStore.setItem("ACCESS_TOKEN", token);
+                router.replace("/");
+
         }
-    }, [user, segments, navigationState]);
+    }, [user, token, segments, navigationState]);
 }
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
-
-    useProtectedRoute(user);
+    const [token, setToken] = useState(null);
+    useProtectedRoute(user, token); // Pass both user and token
 
     const authContext = {
         user,
+        token,
         setUser,
+        setToken,
     };
 
-    return <AuthContext.Provider value={authContext}>{children}</AuthContext.Provider>;
+    return <AuthContext.Provider value={{
+        setUser,
+        setToken,
+        user,
+        token,
+
+    }}>{children}</AuthContext.Provider>;
 }
