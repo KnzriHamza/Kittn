@@ -8,6 +8,17 @@
       "expo-router"
     ],
     "name": "kittn",
-    "slug": "kittn"
+    "slug": "kittn",
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "340132cf-cb9e-4015-9dd4-94a2c9fe38ef"
+      }
+    },
+    "android": {
+      "package": "com.chrolloloo.kittn"
+    }
   }
 }
