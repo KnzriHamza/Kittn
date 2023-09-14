@@ -1,21 +1,22 @@
-import {useState} from "react";
-import {Text, SafeAreaView, ScrollView, TouchableOpacity, FlatList} from 'react-native';
+import {useEffect, useState} from "react";
+import { SafeAreaView, ScrollView, TouchableOpacity, FlatList} from 'react-native';
 import {Link, Stack, useRouter} from "expo-router";
-import {COLORS} from "../constants";
+import {COLORS, SIZES} from "../constants";
 import {
-    Avatar,
-    Fab,
+    Avatar, Badge, Box, Button, CheckIcon,
+    Fab, Flex, FormControl,
 
-    Heading,
+    Heading, HStack,
     Icon, IconButton,
-    Input, Menu,  Pressable, useColorMode, useDisclose,
-    VStack
+    Input, Menu, Modal, Pressable, Select, Spacer, TextArea, useColorMode, useDisclose,
+    VStack,Text
 } from "native-base";
 import {AntDesign, MaterialIcons} from "@expo/vector-icons";
 import {useAuth} from "../context/ContextProvider";
 import Note from "../components/home/welcome/Note";
 import SecureStore from "@react-native-async-storage/async-storage/src";
 import Categories from "../components/home/welcome/Categories";
+import axiosClient from "../axios-client";
 
 
 
@@ -37,12 +38,31 @@ const Profile = () =>{
     const userName = user ? user.name : '';
     const [initials, setInitials] = useState([]);
     const [isLoading, setLoading] = useState(true);
+    const [categories, setCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState([]);
 
     const logout = async () => {
         setToken(null)
         setUser()
 
     };
+
+    useEffect(() => {
+        getCategories()
+    }, []);
+
+    const getCategories = () => {
+        axiosClient
+            .get(`/todoCategories`)
+            .then(({ data }) => {
+                setCategories(data.data)
+                console.error(categories)
+            })
+            .catch(() => {
+                console.log("route errors")
+            });
+    };
+
 
     const {
         isOpen,
@@ -97,25 +117,112 @@ const Profile = () =>{
 
             <VStack safeArea  space={2.5} w="100%" px="4" bg={colorMode === "dark" ? "coolGray.800" : "warmGray.50"} paddingTop="16">
 
+                <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
+                    <Modal.Content>
+                        <Modal.CloseButton />
+                        <Modal.Header>Edit Todo</Modal.Header>
+                        <Modal.Body >
+                            <FormControl>
+                                <FormControl.Label>Todo Title</FormControl.Label>
+                                <Input
+                                    defaultValue={selectedCategory ? selectedCategory.todoTitle : ''}
+                                    onChangeText={newTitle =>setSelectedCategory((prevState) => ({
+                                        ...prevState,
+                                        todoTitle: newTitle,
+                                    }))}/>
+                            </FormControl>
+                            <FormControl mt="3">
+                                <FormControl.Label>Todo Description</FormControl.Label>
 
+                                <TextArea width="100%" defaultValue={selectedCategory ? selectedCategory.todoMessage : ''} // for android and ios
+                                          w="100%" maxW="300" onChangeText={
+                                    newMessage =>setSelectedCategory((prevState) => ({
+                                        ...prevState,
+                                        todoMessage: newMessage,
+                                    }))}/>
+                            </FormControl>
+
+
+
+
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button.Group space={2}>
+                                <Button variant="ghost" colorScheme="blueGray" onPress={() => {
+                                    setModalVisible(false);
+                                }}>
+                                    Cancel
+                                </Button>
+                                <Button onPress={() => {
+                                    setModalVisible(false);
+                                    onModalSubmit();
+                                }}>
+                                    Save
+                                </Button>
+                            </Button.Group>
+                        </Modal.Footer>
+                    </Modal.Content>
+                </Modal>
 
                 <Heading >
-                    <Text>Welcome Back {userName}</Text>
+                    <Text>Categories</Text>
                 </Heading>
-                <Input variant="rounded" w={{
-                    base: "100%",
-                    md: "100%"
-                }} InputRightElement={<Icon as={<MaterialIcons name="search" />} size={5} mr="2" color="muted.400" />} placeholder="Name" />
-                <Categories></Categories>
 
-                <Note ></Note>
+                <ScrollView>
+                    <VStack space="6">
+                        {categories.map((item) => (
+                            <Pressable onPress={() => console.log(item.id)} rounded="8" overflow="hidden" borderWidth="1"  maxW="96" shadow="3" bg={item.categoryColor} p="5">
+                                <Box height="24">
+                                    <HStack alignItems="center">
+                                        <IconButton size="lg"  variant="outline" colorScheme={item.categoryColor}  _icon={{
+                                            as: AntDesign,
+                                            name: "delete"
+                                        }} />
+                                        <IconButton size="lg" colorScheme={item.categoryColor} onPress={()=>{
+                                            setModalVisible(!modalVisible);
+
+                                        }} _icon={{
+                                            as: AntDesign,
+                                            name: "edit"
+                                        }} />
+                                        <Spacer />
+
+                                            <VStack>
+                                                <HStack>
+                                                    <Text  fontSize="xl" bold >
+                                                        {item.categoryName.toUpperCase()}
+                                                    </Text>
+
+
+                                                </HStack>
+                                                <HStack>
+                                                    <IconButton alignItems="left" size="sm" variant="outline" colorScheme={item.categoryColor} onPress={()=>{
+                                                        setModalVisible(!modalVisible);
+
+                                                    }} _icon={{
+                                                        as: AntDesign,
+                                                        name: "edit"
+                                                    }} />
+                                                    <IconButton alignItems="right" size="sm"  variant="outline" colorScheme={item.categoryColor}  _icon={{
+                                                        as: AntDesign,
+                                                        name: "delete"
+                                                    }} />
+                                                </HStack>
+                                            </VStack>
+
+                                    </HStack>
+
+
+                                </Box>
+                            </Pressable>
 
 
 
-            </VStack >
-            <Fab  shadow={2} size="sm" icon={<Icon color="white" as={AntDesign} name="plus" size="sm" >
+                        ))}
 
-            </Icon>} />
+                    </VStack>
+                </ScrollView>
+            </VStack>
         </SafeAreaView>
     )
 }

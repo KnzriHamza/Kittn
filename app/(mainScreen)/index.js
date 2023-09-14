@@ -1,17 +1,17 @@
 import {useEffect, useState} from "react";
-import {Text, SafeAreaView, ScrollView, TouchableOpacity, FlatList} from 'react-native';
+import {Text, SafeAreaView, ScrollView} from 'react-native';
 import {Link, Stack, useRouter} from "expo-router";
 import {COLORS} from "../constants";
 import {
-    Avatar, Box, Button, Center, CheckIcon,
+    Avatar, Box, Button, CheckIcon,
     Fab, FormControl,
 
     Heading, HStack,
     Icon, IconButton,
-    Input, Menu, Modal, Pressable, Select, Spinner, Stagger, TextArea, useColorMode, useDisclose,
+    Input, Menu, Modal, Pressable, Select, Spacer, Spinner, TextArea, useColorMode,
     VStack
 } from "native-base";
-import {AntDesign, MaterialCommunityIcons, MaterialIcons} from "@expo/vector-icons";
+import {AntDesign, MaterialIcons} from "@expo/vector-icons";
 import {useAuth} from "../context/ContextProvider";
 import Note from "../components/home/welcome/Note";
 import SecureStore from "@react-native-async-storage/async-storage/src";
@@ -43,11 +43,9 @@ const Home = () =>{
     const [selectedTodo, setSelectedTodo] = useState([]);
     const [isLoading, setLoading] = useState(true);
 
+    useEffect(() => {
 
-        const {
-            isOpen,
-            onToggle
-        } = useDisclose();
+    }, []);
 
 
     useEffect(() => {
@@ -113,7 +111,6 @@ const Home = () =>{
             .then(({ data }) => {
                 setCategories(data)
                 setCategoriesBar(data.data)
-                console.log(categoriesBAr)
             })
             .catch(() => {
                 console.log("route errors")
@@ -160,8 +157,15 @@ const Home = () =>{
 
 
                     <Heading >
-                        <Text>Welcome Back {userName}</Text>
+                        <Text>Welcome Back {userName} </Text>
+
+
                     </Heading>
+                    <HStack >
+                        <Link href="/newNote">Create a new Note</Link>
+                        <Spacer/>
+                        <Link href="/newCategory">Create a new Category</Link>
+                    </HStack>
                     <Input variant="rounded" w={{
                         base: "100%",
                         md: "100%"
@@ -276,10 +280,14 @@ const Home = () =>{
                     </ScrollView>
 
 
+                    <Fab   shadow={2} size="sm" icon={<Icon color="white" as={AntDesign} name="plus" size="sm" >
 
+                    </Icon>} >
+
+                    </Fab>
 
                 </VStack >
-                <Fab></Fab>
+
         </SafeAreaView>
     )
 }

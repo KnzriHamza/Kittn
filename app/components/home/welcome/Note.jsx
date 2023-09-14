@@ -26,68 +26,39 @@ const Note = ({ todo } ) => {
         toggleColorMode
     } = useColorMode();
     const router = useRouter();
-    const [loading, setLoading] = useState(true);
-    const [modalVisible, setModalVisible] = useState(false)
-    const [todayTodos, setTodayTodos] = useState([]);
-    const [selectedTodo, setSelectedTodo] = useState(null); // Store the selected todo
-    const [categories, setCategories] = useState([]);
+
     const [done, setDone] = useState(todo.todoDone);
 
 
 
 
+    const  setTodoDone = () => {
+        if(done === 0){
+            setDone(1)
+        }else{
+            setDone(0)
+        }
 
-
-    const onTodoPress = () => {
-        console.log(todo.id)
-        //setSelectedTodo(todo);
-    }
-    const setTodoDone = () => {
-
-
-            console.error("doneeeeeeeeeeeee")
-
-
-    };
+        console.log(done+"       done")
+        console.log(todo.todoDone+"       todo.todoDone")
 
 
 
 
-
-
-
-
-    const onModalSuasdasdbmit = () => {
-        const payload = {
-            todoTitle: selectedTodo.todoTitle,
-            todoMessage: selectedTodo.todoMessage,
-            categoryName: selectedTodo.categoryName,
-        };
-        console.error(payload.categoryName)
-    };
-
-
-    const onModalSubmit = () => {
-        setLoading(true)
-        const payload = {
-            todoTitle: selectedTodo.todoTitle,
-            todoMessage: selectedTodo.todoMessage,
-
-        };
     };
 
 
 
 
     return <VStack  space={1.5} bg={colorMode === "dark" ? "coolGray.900" : "warmGray.50"}>
-        <HStack  aligntodos="center" >
+        <HStack  aligntodos="center">
             <Badge colorScheme={todo.categoryColor} _text={{
                 color: "white"
             }} variant="solid" rounded="4">
                 {todo.todoTitle}
             </Badge>
             <Spacer />
-            <Checkbox defaultIsChecked={todo.todoDone} _checked={done} onChange={setTodoDone}  value={todo.id} colorScheme="dark" size="md" icon={<Icon as={<MaterialCommunityIcons name="check" />}  /> }/>
+            <Checkbox defaultIsChecked={done} _checked={done}   onChange={ setTodoDone }  value={todo.id} colorScheme="dark" size="lg" icon={<Icon as={<MaterialCommunityIcons name="check" />}  /> }/>
 
         </HStack>
         <Text underline color={colorMode === "dark" ? "coolGray.900" : "warmGray.50"} mt="3" fontWeight="medium" fontSize="xl">

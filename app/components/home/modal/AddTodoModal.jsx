@@ -11,21 +11,21 @@ const AddTodoModal = () => {
     return (
             <Modal.Content>
                 <Modal.CloseButton />
-                <Modal.Header>Edit Todo</Modal.Header>
+                <Modal.Header>Add  new Note</Modal.Header>
                 <Modal.Body >
                     <FormControl>
-                        <FormControl.Label>Todo Title</FormControl.Label>
+                        <FormControl.Label>Note Title</FormControl.Label>
                         <Input
                         />
                     </FormControl>
                     <FormControl mt="3">
-                        <FormControl.Label>Todo Description</FormControl.Label>
+                        <FormControl.Label>Note Description</FormControl.Label>
 
                         <TextArea width="100%" // for android and ios
                                   w="100%" maxW="300" />
                     </FormControl>
                     <FormControl>
-                        <FormControl.Label>Todo Categorie</FormControl.Label>
+                        <FormControl.Label>Note Categorie</FormControl.Label>
                         <Box maxW="300">
                             <Select
                                 minWidth="200" accessibilityLabel="Choose Service" placeholder="Choose Service" _selectedItem={{

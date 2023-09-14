@@ -62,13 +62,32 @@ const Layout = () => {
 
 
             <Tabs.Screen
-                name="settings"
+                name="newCategory"
                 options={{
                     title: "",
                     headerShown: true,
-                    href: {
-                        pathname: "/settings",
-                    },
+                    href: null,
+                    tabBarIcon: ({ color }) => (
+                        <View
+                            style={{
+                                flexDirection: "column",
+                                alignItems: "center",
+                                marginTop: 8,
+                                backgroundColor: "transparent",
+                            }}
+                        >
+                            <FontAwesome name="gear" color={color} size={28} />
+                        </View>
+                    ),
+                }}
+            />
+
+            <Tabs.Screen
+                name="newNote"
+                options={{
+                    title: "",
+                    headerShown: true,
+                    href: null,
                     tabBarIcon: ({ color }) => (
                         <View
                             style={{
