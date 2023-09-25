@@ -13,15 +13,54 @@ import {
     WarningOutlineIcon
 } from "native-base";
 import {MaterialIcons} from "@expo/vector-icons";
+import axiosClient from "../axios-client";
+import {useState} from "react";
 
 export default function Register() {
-    const { setUser } = useAuth();
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [name, setName] = useState('')
+    const [passwordConfirmation, setPasswordConfirmation] = useState()
 
-    const register = () => {
-        setUser({
-            name: "John Doe",
-        });
-    }
+
+
+    const { setUser, setToken } = useAuth();
+
+    const onSubmit = () => {
+        if (email === '' || password === '') {
+            console.error('Error', 'Please fill all fields');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            console.error('Error', 'Passwords do not match');
+            return;
+        }
+
+        const payload = {
+
+            email: email,
+            name: name,
+            password: password,
+            password_confirmation:passwordConfirmation
+        };
+        console.log(payload);
+
+        axiosClient
+            .post("/signup", payload)
+            .then(({ data }) => {
+                setUser(data.user);
+                setToken(data.token);
+                console.log("connected")
+            })
+            .catch((err) => {
+                const response = err.response;
+                if (response && response.status === 422) {
+                    console.log(err)
+                }
+            });
+
+    };
 
     return (
         <Center>
@@ -45,18 +84,40 @@ export default function Register() {
                 </Heading>
                 <VStack space={3} mt="5">
                     <FormControl>
+                        <FormControl.Label>Name</FormControl.Label>
+                        <Input
+                            defaultValue={name}
+                            placeholder="Enter Your Name"
+                            onChangeText={(newEmail) => setName(newEmail)}
+                            type="name"
+                        />
+                    </FormControl>
+                    <FormControl>
                         <FormControl.Label>Email</FormControl.Label>
-                        <Input />
+                        <Input
+                            defaultValue={email}
+                            placeholder="Enter Email"
+                            onChangeText={(newEmail) => setEmail(newEmail)}
+                            type="email"
+                        />
                     </FormControl>
                     <FormControl>
                         <FormControl.Label>Password</FormControl.Label>
-                        <Input type="password" />
+                        <Input
+                            defaultValue={password}
+                            placeholder="Enter Password"
+                            onChangeText={(newPassword) => setPassword(newPassword)}
+                            type="password" />
                     </FormControl>
                     <FormControl>
                         <FormControl.Label>Confirm Password</FormControl.Label>
-                        <Input type="password" />
+                        <Input
+                            defaultValue={passwordConfirmation}
+                            placeholder="Enter Password Confirmation"
+                            onChangeText={newPasswordConfirmation => setPasswordConfirmation(newPasswordConfirmation)}
+                            type="password" />
                     </FormControl>
-                    <Button mt="2" colorScheme="indigo">
+                    <Button mt="2" colorScheme="indigo" onPress={onSubmit}>
                         Sign up
                     </Button>
                     <HStack mt="6" justifyContent="center">

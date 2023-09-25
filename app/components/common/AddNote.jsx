@@ -1,149 +1,265 @@
-import React, {useState} from 'react'
-import { View, Text } from 'react-native'
+import React, {useEffect, useState} from 'react'
+import {ScrollView} from 'react-native'
 
 import {
     Box,
-    Radio,
+    Button,
     CheckIcon,
     Divider,
     FormControl,
     Heading,
+    HStack,
     Input,
-    Modal,
     Select,
+    Spinner,
     TextArea,
-    VStack, IconButton, HStack, Flex, Checkbox, Container, Button, Center
+    VStack
 } from "native-base";
-import {AntDesign} from "@expo/vector-icons";
 import axiosClient from "../../axios-client";
+import PopUpSlide from "./cards/popUpSlide";
+import {useRouter} from "expo-router";
+import {DateTimePickerAndroid} from "@react-native-community/datetimepicker";
 
-const AddCategory = () => {
-    const [newCategory, setNewCategory] = useState({
-        categoryTitle: '', // Initialize to an empty string
-        categoryColor: '', // Initialize to an empty string
-        categoryIcon: '', // Initialize to an empty string
+const AddNote = () => {
+    const [isOpenTop, setIsOpenTop] = useState(false);
+    const [isLoading, SetIsLoading] = useState(false);
+    const [buttonLoading, SetButtonLoading] = useState(false);
+    const [slideType, SetSlideType] = useState("")
+
+    const [categories, setCategories] = useState([]);
+
+
+    const [newNote, setNewNote] = useState({
+        title: '', // Initialize to an empty string
+        description: '', // Initialize to an empty string
+        category: 0, // Initialize to an empty string
+        dueDate: "",
+        priority:""
     });
-
-    const handleCategoryIconChange = (text) => {
-        // Update the categoryTitle when the input changes
-        setNewCategory((prevState) => ({
-            ...prevState,
-            categoryIcon: text,
-        }));
+    const [date, setDate] = useState(new Date(1598051730000));
+    const [formattedTime, setFormattedTime] = useState("HH:MM")
+    const [formattedDate, setFormattedDate] = useState("DD-MM-YY")
+    const onChange = (event, selectedDate) => {
+        setDate(selectedDate);
     };
-    const handleCategoryTitleChange = (text) => {
-        // Update the categoryTitle when the input changes
-        setNewCategory((prevState) => ({
-            ...prevState,
-            categoryTitle: text,
-        }));
-    };
+    useEffect(() => {
+        getCategories()
+
+    }, []);
 
 
-    const handleCategoryColorChange = (color) => {
-        // Update the categoryColor when a radio button is selected
-        setNewCategory((prevState) => ({
-            ...prevState,
-            categoryColor: color,
-        }));
+
+    const showMode = (currentMode) => {
+        DateTimePickerAndroid.open({
+            value: date,
+            onChange,
+            mode: currentMode,
+            is24Hour: true,
+        });
     };
 
-    const submitNewCategory = () => {
+    const showDatepicker = () => {
+        showMode('date');
+    };
+
+    const showTimepicker = () => {
+        showMode('time');
+    };
+
+
+    const setPopUp = () => {
+        setIsOpenTop(true);
+        setTimeout(() => {
+            setIsOpenTop(false);
+        }, 4500);
+    };
+
+
+
+    const getCategories = () => {
+        axiosClient
+            .get(`/todoCategories`)
+            .then(({ data }) => {
+                setCategories(data.data)
+            })
+            .catch(() => {
+                console.log("route errors")
+            });
+    };
+
+
+
+
+
+
+
+
+        const reformatDate = (value) => {
+            if (value.getHours()<10){
+                setFormattedTime( "0"+value.getHours()+":"+value.getMinutes())
+            }else {
+                setFormattedTime( value.getHours()+":"+value.getMinutes())
+            }
+            console.log(value.getHours())
+            setFormattedDate(value.getFullYear()+"-"+value.getMonth()+"-"+value.getDate())
+
+
+
+    };
+        // Function to decompose and reformat the date
+    useEffect(() => {
+        reformatDate(date)
+
+
+    }, [date]);
+
+
+
+    const router = useRouter();
+
+
+    const onNewNoteSubmit = () => {
+
+
+        //SetButtonLoading(true)
         // Access newCategory to get the category title and color
+
+
         const payload = {
-            categoryName: newCategory.categoryTitle,
-            categoryColor: newCategory.categoryColor,
-            categoryIcon: newCategory.categoryIcon,
+            todoTitle: newNote.title,
+            todoMessage: newNote.description,
+            //todoDate: selectedDatetime.format("YYYY-MM-DD HH:mm:d"),
+            todoDate: formattedDate+" "+formattedTime ,
+            todoPriority: newNote.priority,
+            category_id: newNote.category,
 
         };
+        console.log(payload)
         axiosClient
-            .post("/todoCategories", payload)
+            .post("/todos", payload)
             .then(() => {
-                console.log("successful")
+                SetSlideType("success")
+                setPopUp()
+                SetButtonLoading(false)
+                router.push('/');
             })
             .catch(function (error) {
+                SetSlideType("error")
+                setPopUp()
+                SetButtonLoading(false)
                 console.log(error);
             });
 
-        console.log('New Category:', newCategory);
     };
 
     return (
-        <Box width="100%">
-            <Box  rounded="8" overflow="hidden" borderWidth="1" borderColor="coolGray.300" maxW="96" shadow="3" bg="coolGray.100" p="5">
-                <VStack space="6" width="100%">
-                    <Heading size="md">Add a new Note</Heading>
-                    <Divider   />
-                    <FormControl>
-                        <FormControl.Label>Category name</FormControl.Label>
-                        <Input onChangeText={handleCategoryTitleChange} />
-                    </FormControl>
-                    <FormControl>
-                        <FormControl.Label>Select a Color</FormControl.Label>
-                        <Container>
-                            <VStack space="8" alignItems="center">
-                                <Radio.Group>
-                                    <HStack alignItems="center" space="6" width="100%">
-                                        {['red', 'green', 'fuchsia', 'yellow', 'orange', 'indigo', 'black'].map(
-                                            (variant) => (
-                                                <Radio
-                                                    colorScheme={variant}
-                                                    borderColor={variant}
-                                                    value={variant}
-                                                    key={variant}
-                                                    onPress={() => handleCategoryColorChange(variant)}
-                                                >
-                                                </Radio>
-                                            )
-                                        )}
+
+        <ScrollView>
+            <Box width="100%">
+                <PopUpSlide isOpenTop={isOpenTop} slideType={slideType}></PopUpSlide>
+                <Box  rounded="8" overflow="hidden" borderWidth="1" borderColor="coolGray.300" maxW="96" shadow="3" bg="coolGray.100" p="5">
+                    <VStack space="3" width="100%">
+                        <Heading size="md">Add a New Note</Heading>
+                        <Divider   />
+                        <FormControl>
+                            <FormControl.Label>Note Title</FormControl.Label>
+                            <Input flex={1} onChangeText={newTitle =>setNewNote((prevState) => ({
+                                ...prevState,
+                                title: newTitle,
+                            }
+
+                            ))}
+                                   value={newNote.title}  placeholder="Add Task" />
+
+                        </FormControl>
+                        <FormControl mt="3">
+                            <FormControl.Label>Note Description</FormControl.Label>
+
+                            <TextArea width="100%" // for android and ios
+                                      w="100%" onChangeText={newDescription =>setNewNote((prevState) => ({
+                                ...prevState,
+                                description: newDescription,
+                            }))} />
+                        </FormControl>
+                        <FormControl>
+                            <FormControl.Label>Note Categorie</FormControl.Label>
+                            <Box>
+                                <Select
+                                    onValueChange={newCategory => {
+
+                                        setNewNote((prevState) => ({
+                                            ...prevState,
+                                            category: newCategory,
+                                        }))
+
+                                    }}
+                                    minWidth="200"
+                                    accessibilityLabel="Choose Service"
+                                    placeholder="Choose Service"
+                                    _selectedItem={{
+                                    bg: "teal.600",
+                                    endIcon: <CheckIcon size="5"   />
+                                }} mt={1} >
+                                    <Select.Item label="Uncategorized" value="0" />
+                                    {categories.map((item) => (
+                                        <Select.Item label={item.categoryName} value={item.id} />
+                                    ))}
+                                </Select>
+                            </Box>
+                        </FormControl>
+                        <FormControl>
+                            <FormControl.Label>Due Date</FormControl.Label>
+                            <HStack space="2">
+                                <Input width="75%" value={formattedDate} placeholder={formattedDate} onFocus={showDatepicker} />
+                                <Input width="25%" value={formattedTime} placeholder={formattedTime}  onFocus={showTimepicker} />
+                            </HStack>
+                        </FormControl>
+                        <FormControl>
+                            <FormControl.Label>Priority</FormControl.Label>
+                            <Select
+                                onValueChange={newPriority => {
+                                    console.log('Selected prio:', newPriority);
+                                    setNewNote((prevState) => ({
+                                        ...prevState,
+                                        priority: newPriority,
+                                    }))
+                                }}
+                                minWidth="200"
+                                accessibilityLabel="Choose Service"
+                                placeholder="Choose Service"
+                                _selectedItem={{
+                                bg: "teal.600",
+                                endIcon: <CheckIcon size="5"/>
+                            }} mt={1} >
+                                <Select.Item label="Lowest" value="Lowest" />
+                                <Select.Item label="Low" value="Low" />
+                                <Select.Item label="Medium" value="Medium" />
+                                <Select.Item label="High" value="High" />
+                                <Select.Item label="Highest" value="Highest" />
+                            </Select>
+                        </FormControl>
+                        <FormControl>
+                            {/* ... (your existing JSX) */}
+                            <Button onPress={onNewNoteSubmit} disabled={buttonLoading}>
+                                {buttonLoading ? (
+                                    <HStack space={2} justifyContent="center">
+                                        <Spinner accessibilityLabel="Loading posts" />
+                                        <Heading color="primary.500" fontSize="md">
+                                            Loading
+                                        </Heading>
                                     </HStack>
-                                </Radio.Group>
-                            </VStack>
-                        </Container>
-                    </FormControl>
+                                ) : (
+                                    'Create a Note'
+                                )}
+                            </Button>
 
-                    <FormControl>
-                        <FormControl.Label>Select an Icon</FormControl.Label>
-                        <Center>
-                            <VStack space="3">
-                                <HStack space={4} alignItems="center">
-                                    {[
 
-                                        'stepbackward',
-                                        'forward',
-                                        'banckward',
-                                        'caretright',
-                                        'caretleft',
-                                        'caretdown',
-                                    ].map(variant => <IconButton onPress={() => handleCategoryIconChange(variant)} colorScheme="indigo" key={variant} variant="outline" _icon={{
-                                        as: AntDesign,
-                                        name: variant
-                                    }} />)}
-                                </HStack>
-                                <HStack space={4} alignItems="center">
-                                    {[
-                                        'link',
-                                        'form',
-                                        'picture',
-                                        'table',
-                                        'filter',
-                                        'stepforward',
-                                    ].map(variant => <IconButton onPress={() => handleCategoryIconChange(variant)} colorScheme="indigo" key={variant} variant="outline" _icon={{
-                                        as: AntDesign,
-                                        name: variant
-                                    }} />)}
-                                </HStack>
-                            </VStack>
-                        </Center>
-                    </FormControl>
-                    <FormControl>
-                        {/* ... (your existing JSX) */}
-                        <Button onPress={submitNewCategory}>Create a Category</Button>
-                    </FormControl>
-                </VStack>
+                        </FormControl>
+                    </VStack>
+                </Box>
             </Box>
-        </Box>
+        </ScrollView>
     )
 }
 
-export default AddCategory
+export default AddNote

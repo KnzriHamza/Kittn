@@ -1,21 +1,20 @@
 import {useEffect, useState} from "react";
-import { SafeAreaView, ScrollView, TouchableOpacity, FlatList} from 'react-native';
+import { SafeAreaView, TouchableOpacity, FlatList} from 'react-native';
 import {Link, Stack, useRouter} from "expo-router";
 import {COLORS, SIZES} from "../constants";
 import {
     Avatar, Badge, Box, Button, CheckIcon,
     Fab, Flex, FormControl,
-
+    ScrollView,
     Heading, HStack,
     Icon, IconButton,
     Input, Menu, Modal, Pressable, Select, Spacer, TextArea, useColorMode, useDisclose,
-    VStack,Text
+    VStack, Text, Divider, Center, Skeleton, AlertDialog
 } from "native-base";
 import {AntDesign, MaterialIcons} from "@expo/vector-icons";
 import {useAuth} from "../context/ContextProvider";
 import Note from "../components/home/welcome/Note";
 import SecureStore from "@react-native-async-storage/async-storage/src";
-import Categories from "../components/home/welcome/Categories";
 import axiosClient from "../axios-client";
 
 
@@ -23,7 +22,7 @@ import axiosClient from "../axios-client";
 
 
 
-const Profile = () =>{
+const Categories = () =>{
 
     //Modal
     const [modalVisible, setModalVisible] = useState(false);
@@ -39,6 +38,8 @@ const Profile = () =>{
     const [initials, setInitials] = useState([]);
     const [isLoading, setLoading] = useState(true);
     const [categories, setCategories] = useState([]);
+    const [activeCategory, setActiveCategory] = useState();
+
     const [selectedCategory, setSelectedCategory] = useState([]);
 
     const logout = async () => {
@@ -64,10 +65,18 @@ const Profile = () =>{
     };
 
 
-    const {
-        isOpen,
-        onToggle
-    }= useDisclose();
+
+    const deleteCategory = (id) => {
+        console.log(`the id is ` + id  );
+        axiosClient.delete("/todoCategories/" + id)
+            .then(() => {
+            console.log("deleted")
+                getCategories();
+        }).catch();
+
+    };
+
+
 
     // this line Checks the token in use
     const changeToken = async () => {
@@ -76,8 +85,8 @@ const Profile = () =>{
         console.error(await SecureStore.getItem('ACCESS_TOKEN'))
 
     };
-
-
+    const [isOpen, setIsOpen] = useState(false);
+    const onClose = () => setIsOpen(false);
 
 
 
@@ -103,7 +112,7 @@ const Profile = () =>{
                                 }}>{initials}</Avatar>
                             </Pressable>;
                         }}>
-                            <Menu.Item ><Link href="/profile">Profile</Link></Menu.Item>
+                            <Menu.Item ><Link href="/app/(mainScreen)/categories">Profile</Link></Menu.Item>
                             <Menu.Item onPress={logout}>Logout</Menu.Item>
 
                         </Menu>
@@ -116,6 +125,32 @@ const Profile = () =>{
 
 
             <VStack safeArea  space={2.5} w="100%" px="4" bg={colorMode === "dark" ? "coolGray.800" : "warmGray.50"} paddingTop="16">
+                <AlertDialog leastDestructiveRef={""} isOpen={isOpen} onClose={onClose}>
+                    <AlertDialog.Content>
+                        <AlertDialog.CloseButton />
+                        <AlertDialog.Header>Delete Customer</AlertDialog.Header>
+                        <AlertDialog.Body>
+                            {activeCategory}This will remove all data relating to Alex. This action cannot be
+                            reversed. Deleted data can not be recovered.
+                        </AlertDialog.Body>
+                        <AlertDialog.Footer>
+                            <Button.Group space={2}>
+                                <Button variant="unstyled" colorScheme="coolGray" onPress={onClose} >
+                                    Cancel
+                                </Button>
+                                <Button colorScheme="danger" onPress={()=>{
+                                    console.log(activeCategory)
+                                    deleteCategory(activeCategory)
+                                    onClose;
+                                }}>
+                                    Delete
+                                </Button>
+                            </Button.Group>
+                        </AlertDialog.Footer>
+                    </AlertDialog.Content>
+                </AlertDialog>
+
+
 
                 <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
                     <Modal.Content>
@@ -168,64 +203,56 @@ const Profile = () =>{
                     <Text>Categories</Text>
                 </Heading>
 
-                <ScrollView>
-                    <VStack space="6">
+                <ScrollView height="90%" >
+                    <VStack space="6"  >
+
                         {categories.map((item) => (
-                            <Pressable onPress={() => console.log(item.id)} rounded="8" overflow="hidden" borderWidth="1"  maxW="96" shadow="3" bg={item.categoryColor} p="5">
-                                <Box height="24">
-                                    <HStack alignItems="center">
-                                        <IconButton size="lg"  variant="outline" colorScheme={item.categoryColor}  _icon={{
-                                            as: AntDesign,
-                                            name: "delete"
-                                        }} />
-                                        <IconButton size="lg" colorScheme={item.categoryColor} onPress={()=>{
-                                            setModalVisible(!modalVisible);
+                            <Center w="100%">
+                                <HStack  w="100%" maxW="400" borderWidth="0.5"  space={8} rounded="md" _dark={{
+                                    borderColor: item.categoryColor+".500"
+                                }} _light={{
+                                    borderColor: item.categoryColor+".500"
+                                }} p="4">
+                                    <Icon as={AntDesign} name={item.categoryIcon} color="coolGray.300" size="24" _dark={{
+                                        color: "warmGray.50"
+                                    }} />
+                                    <VStack flex="3" space="4">
+                                        <Box padding="2" borderWidth="0" bgColor={item.categoryColor+".500"} rounded="md"   ><Text bold color="white" textAlign="left" paddingLeft="4" fontSize="sm">{item.categoryName}</Text></Box>
+                                        <HStack space="2" alignItems="center">
+                                            <Box size="5" rounded="full" bgColor={item.categoryColor+".500"} />
+                                            <Text>{item.todos_count}</Text>
+                                            <Text>Notes Linked</Text>
 
-                                        }} _icon={{
-                                            as: AntDesign,
-                                            name: "edit"
-                                        }} />
-                                        <Spacer />
+                                        </HStack>
+                                        <HStack alignContent="left" space={4} alignItems="center">
+                                            <Spacer />
 
-                                            <VStack>
-                                                <HStack>
-                                                    <Text  fontSize="xl" bold >
-                                                        {item.categoryName.toUpperCase()}
-                                                    </Text>
+                                            <IconButton onPress={() => {
+                                                setActiveCategory(item.id)
+                                                setIsOpen(!isOpen)
+                                            }} colorScheme={item.categoryColor}  variant="ghost" _icon={{
+                                                as: AntDesign,
+                                                name: "delete"
+                                            }} />
 
-
-                                                </HStack>
-                                                <HStack>
-                                                    <IconButton alignItems="left" size="sm" variant="outline" colorScheme={item.categoryColor} onPress={()=>{
-                                                        setModalVisible(!modalVisible);
-
-                                                    }} _icon={{
-                                                        as: AntDesign,
-                                                        name: "edit"
-                                                    }} />
-                                                    <IconButton alignItems="right" size="sm"  variant="outline" colorScheme={item.categoryColor}  _icon={{
-                                                        as: AntDesign,
-                                                        name: "delete"
-                                                    }} />
-                                                </HStack>
-                                            </VStack>
-
-                                    </HStack>
+                                            <IconButton colorScheme={item.categoryColor}  variant="ghost" _icon={{
+                                                as: AntDesign,
+                                                name: "edit"
+                                            }} />
+                                        </HStack>
 
 
-                                </Box>
-                            </Pressable>
-
-
-
-                        ))}
-
+                                    </VStack>
+                                </HStack>
+                            </Center>))}
                     </VStack>
                 </ScrollView>
             </VStack>
+            <Fab renderInPortal={false} onPress={()=>{router.push('/newCategory');}} shadow={2} size="sm" icon={<Icon color="white" as={AntDesign} name="plus" size="sm" />} />
+
         </SafeAreaView>
     )
 }
 
 
-export default Profile;
+export default Categories;

@@ -1,5 +1,7 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import { View, Text } from 'react-native'
+
+
 
 import {
     Box,
@@ -12,17 +14,33 @@ import {
     Modal,
     Select,
     TextArea,
-    VStack, IconButton, HStack, Flex, Checkbox, Container, Button, Center
+    VStack, IconButton, HStack, Flex, Checkbox, Container, Button, Center, Alert, Slide, Spinner
 } from "native-base";
 import {AntDesign} from "@expo/vector-icons";
 import axiosClient from "../../axios-client";
+import PopUpSlide from "./cards/popUpSlide";
+import {router} from "expo-router";
 
 const AddCategory = () => {
+    const [isOpenTop, setIsOpenTop] = useState(false);
+    const [isLoading, SetIsLoading] = useState(false);
+    const [buttonLoading, SetButtonLoading] = useState(false);
+    const [slideType, SetSlideType] = useState("");
+
     const [newCategory, setNewCategory] = useState({
         categoryTitle: '', // Initialize to an empty string
         categoryColor: '', // Initialize to an empty string
         categoryIcon: '', // Initialize to an empty string
     });
+
+    const setPopUp = () => {
+        setIsOpenTop(true);
+        setTimeout(() => {
+            setIsOpenTop(false);
+        }, 4500);
+    };
+
+
 
     const handleCategoryIconChange = (text) => {
         // Update the categoryTitle when the input changes
@@ -31,6 +49,7 @@ const AddCategory = () => {
             categoryIcon: text,
         }));
     };
+
     const handleCategoryTitleChange = (text) => {
         // Update the categoryTitle when the input changes
         setNewCategory((prevState) => ({
@@ -48,7 +67,9 @@ const AddCategory = () => {
         }));
     };
 
+
     const submitNewCategory = () => {
+        SetButtonLoading(true)
         // Access newCategory to get the category title and color
         const payload = {
             categoryName: newCategory.categoryTitle,
@@ -59,9 +80,15 @@ const AddCategory = () => {
         axiosClient
             .post("/todoCategories", payload)
             .then(() => {
-                console.log("successful")
+                SetSlideType("success")
+                setPopUp()
+                SetButtonLoading(false)
+                router.push('/categories');
             })
             .catch(function (error) {
+                SetSlideType("error")
+                setPopUp()
+                SetButtonLoading(false)
             console.log(error);
         });
 
@@ -69,31 +96,35 @@ const AddCategory = () => {
     };
 
     return (
+
         <Box width="100%">
+            <PopUpSlide isOpenTop={isOpenTop} slideType={slideType}></PopUpSlide>
             <Box  rounded="8" overflow="hidden" borderWidth="1" borderColor="coolGray.300" maxW="96" shadow="3" bg="coolGray.100" p="5">
                 <VStack space="6" width="100%">
                     <Heading size="md">Add a Category</Heading>
                     <Divider   />
                     <FormControl>
                         <FormControl.Label>Category name</FormControl.Label>
-                        <Input onChangeText={handleCategoryTitleChange} />
+                        <Input isRequired onChangeText={handleCategoryTitleChange} />
                     </FormControl>
                     <FormControl>
                         <FormControl.Label>Select a Color</FormControl.Label>
                         <Container>
                             <VStack space="8" alignItems="center">
-                                <Radio.Group>
-                                    <HStack alignItems="center" space="6" width="100%">
+                                <Radio.Group >
+                                    <HStack alignItems="center" space="4" width="100%">
                                         {['red', 'green', 'fuchsia', 'yellow', 'orange', 'indigo', 'black'].map(
                                             (variant) => (
-                                                <Radio
-                                                    colorScheme={variant}
-                                                    borderColor={variant}
-                                                    value={variant}
-                                                    key={variant}
-                                                    onPress={() => handleCategoryColorChange(variant)}
-                                                >
-                                                </Radio>
+                                                <Box padding="1" borderWidth="2" borderColor={variant+".500"}>
+                                                    <Radio size="md"
+                                                        colorScheme={variant}
+                                                        borderColor={variant}
+                                                        value={variant}
+                                                        key={variant}
+                                                        onPress={() => handleCategoryColorChange(variant)}
+                                                    >
+                                                    </Radio>
+                                                </Box>
                                             )
                                         )}
                                     </HStack>
@@ -138,7 +169,20 @@ const AddCategory = () => {
                     </FormControl>
                     <FormControl>
                         {/* ... (your existing JSX) */}
-                        <Button onPress={submitNewCategory}>Create a Category</Button>
+                        <Button onPress={submitNewCategory} disabled={buttonLoading}>
+                            {buttonLoading ? (
+                                <HStack space={2} justifyContent="center">
+                                    <Spinner accessibilityLabel="Loading posts" />
+                                    <Heading color="primary.500" fontSize="md">
+                                        Loading
+                                    </Heading>
+                                </HStack>
+                            ) : (
+                                'Create a Category'
+                            )}
+                        </Button>
+
+
                     </FormControl>
                 </VStack>
             </Box>
