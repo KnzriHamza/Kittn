@@ -15,7 +15,7 @@ import {AntDesign, MaterialIcons} from "@expo/vector-icons";
 import {useAuth} from "../context/ContextProvider";
 import Note from "../components/home/welcome/Note";
 import SecureStore from "@react-native-async-storage/async-storage/src";
-import Categories from "../components/home/welcome/Categories";
+import CategoriesBar from "../components/home/welcome/categoriesBar";
 import axiosClient from "../axios-client";
 import AddCategory from "../components/common/AddCategory";
 import AddNote from "../components/common/AddNote";
@@ -38,7 +38,6 @@ const NewNote = () =>{
     } = useColorMode();
     const userName = user ? user.name : '';
     const [initials, setInitials] = useState([]);
-    const [selectedTodo, setSelectedTodo] = useState([]);
     const [newForm, setNew] = useState(false);
 
 
@@ -110,7 +109,7 @@ const NewNote = () =>{
                                 }}>{initials}</Avatar>
                             </Pressable>;
                         }}>
-                            <Menu.Item ><Link href="/profile">Profile</Link></Menu.Item>
+                            <Menu.Item ><Link href="/app/(mainScreen)/categories">Profile</Link></Menu.Item>
                             <Menu.Item onPress={logout}>Logout</Menu.Item>
 
                         </Menu>
@@ -131,7 +130,7 @@ const NewNote = () =>{
                 <ScrollView >
                     <VStack height="100%" space="5">
 
-                        <AddNote></AddNote>
+                        <AddNote ></AddNote>
 
 
 

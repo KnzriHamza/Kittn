@@ -23,17 +23,22 @@ import axiosClient from "../axios-client";
 export default function Login() {
     const { setUser, setToken } = useAuth();
     const [show, setShow] = useState(false);
-    const [email, setEmail] = useState()
+    const [email, setEmail] = useState("")
     const [password, setPassword] = useState()
     const [errors, setErrors] = useState(null);
     const [username, setUserName] = useState(null);
 
     const onSubmit = async () => {
-        const payload = {
-            email: "a@admin.com",
-            password: "q@123456789"
-        };
+        if (email === '1' || password === '1') {
+            console.error('Error', 'Please fill all fields');
+            return;
+        }
 
+        const payload = {
+            email: "hamzoun1992@gmail.com",
+            password: "123456789@a"
+        };
+        console.log(payload)
         axiosClient
             .post("/login", payload)
             .then(({ data }) => {
@@ -73,11 +78,21 @@ export default function Login() {
                 <VStack space={3} mt="5">
                     <FormControl>
                         <FormControl.Label>Email ID</FormControl.Label>
-                        <Input />
+                        <Input
+                            placeholder="Enter Email"
+                            onChangeText={loginEmail => setEmail(loginEmail)}
+                            type="email"
+                            defaultValue="hamzoun1992@gmail.com"
+                        />
                     </FormControl>
                     <FormControl>
                         <FormControl.Label>Password</FormControl.Label>
-                        <Input type="password" />
+                        <Input
+                            placeholder="Enter Password"
+                            onChangeText={loginPassword => setPassword(loginPassword)}
+                            type="password"
+                            defaultValue="@12345678a"
+                        />
                         <Link _text={{
                             fontSize: "xs",
                             fontWeight: "500",

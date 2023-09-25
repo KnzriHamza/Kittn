@@ -2,7 +2,7 @@ import axios from 'axios';
 import SecureStore from "@react-native-async-storage/async-storage/src";
 
 const axiosClient = axios.create({
-    baseURL: 'http://139.162.186.130:3000/api',
+    baseURL: process.env.EXPO_PUBLIC_API_URL,
 });
 
 

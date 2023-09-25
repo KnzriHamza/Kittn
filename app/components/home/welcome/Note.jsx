@@ -1,87 +1,106 @@
-import {useEffect, useState} from 'react'
-import {FlatList, ScrollView, Text} from 'react-native'
-import {useRouter} from "expo-router";
+import { useEffect, useState } from "react";
+import { FlatList, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import {
     Badge,
     Box,
-    Button, Checkbox, CheckIcon,
+    Button,
+    Center,
+    Checkbox,
+    CheckIcon,
     Flex,
     FormControl,
-    HStack, Icon, Input,
+    HStack,
+    Icon,
+    Input,
     Modal,
-    Pressable, Select,
+    Pressable,
+    Select,
+    Skeleton,
     Spacer,
-    Spinner, TextArea,
+    Spinner,
+    TextArea,
+    Text,
     useColorMode,
-    VStack
+    VStack,
+    Switch,
 } from "native-base";
 import axiosClient from "../../../axios-client";
-import {MaterialCommunityIcons} from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import categories from "../../../(mainScreen)/categories";
 
-
-
-const Note = ({ todo } ) => {
-    const {
-        colorMode,
-        toggleColorMode
-    } = useColorMode();
+const Note = ({ todo }) => {
+    const { colorMode, toggleColorMode } = useColorMode();
     const router = useRouter();
-
     const [done, setDone] = useState(todo.todoDone);
 
-
-
-
-    const  setTodoDone = () => {
-        if(done === 0){
-            setDone(1)
-        }else{
-            setDone(0)
-        }
-
-        console.log(done+"       done")
-        console.log(todo.todoDone+"       todo.todoDone")
-
-
-
-
+    const setTodoDone = (newStatus) => {
+        const payload = {
+            todoDone: newStatus,
+        };
+        axiosClient
+            .put("/todos/" + todo.id, payload)
+            .then(function (response) {
+                setDone(newStatus);
+                console.log(response);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
     };
 
+    return (
+        <Center w="100%">
+            <HStack
+                w="100%"
+                maxW="400"
+                borderWidth="0"
+                space={8}
+                rounded="md"
+                _dark={{
+                    borderColor: todo.categoryColor + ".500",
+                }}
+                _light={{
+                    borderColor: todo.categoryColor + ".500",
+                }}
+                p="4"
+            >
+                <VStack flex="1" space="2">
+                    <Box
+                        padding="2"
+                        borderWidth="0"
+                        bgColor={todo.categoryColor + ".500"}
+                        rounded="md"
+                    >
+                        <Text fontSize="md" bold color="white">
+                            {todo.todoTitle}
+                        </Text>
+                    </Box>
+                    <Text>{todo.todoDate}</Text>
+                    <HStack space="2" alignItems="center">
+                        <Box
+                            size="5"
+                            rounded="full"
+                            bgColor={todo.categoryColor + ".500"}
+                        />
+                        <Text fontSize="md">{todo.categoryName}</Text>
+                        <Spacer></Spacer>
+                        <Switch
+                            onToggle={() => setTodoDone(done == 0 ? 1 : 0)}
+                            isChecked={done == 1}
+                            offTrackColor={todo.categoryColor + ".100"}
+                            onTrackColor={todo.categoryColor + ".200"}
+                            onThumbColor={todo.categoryColor + ".500"}
+                            offThumbColor={todo.categoryColor + ".50"}
+                        />
+                    </HStack>
+                    <Box startColor="amber.300">
+                        <Text fontSize="md">{todo.todoMessage}</Text>
+                    </Box>
+                </VStack>
+            </HStack>
+        </Center>
+    );
+};
 
-
-
-    return <VStack  space={1.5} bg={colorMode === "dark" ? "coolGray.900" : "warmGray.50"}>
-        <HStack  aligntodos="center">
-            <Badge colorScheme={todo.categoryColor} _text={{
-                color: "white"
-            }} variant="solid" rounded="4">
-                {todo.todoTitle}
-            </Badge>
-            <Spacer />
-            <Checkbox defaultIsChecked={done} _checked={done}   onChange={ setTodoDone }  value={todo.id} colorScheme="dark" size="lg" icon={<Icon as={<MaterialCommunityIcons name="check" />}  /> }/>
-
-        </HStack>
-        <Text underline color={colorMode === "dark" ? "coolGray.900" : "warmGray.50"} mt="3" fontWeight="medium" fontSize="xl">
-            {todo.categoryName}
-        </Text>
-
-        <Text isTruncated  mt="2" fontSize="sm" color={colorMode === "dark" ? "coolGray.900" : "warmGray.50"}>
-            {todo.todoMessage}
-        </Text>
-        <Flex bg={colorMode === "dark" ? "coolGray.800" : "warmGray.50"}>
-            <Text mt="2" fontSize={12} fontWeight="medium" >
-                Read More
-            </Text>
-        </Flex>
-    </VStack>
-
-
-
-
-}
-
-
-
-
-
-export default Note
+export default Note;

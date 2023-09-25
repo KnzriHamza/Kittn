@@ -15,19 +15,15 @@ function useProtectedRoute(user, token) { // Pass both user and token as paramet
     const segments = useSegments();
     const router = useRouter();
     const navigationState = useRootNavigationState();
+
+
+
+
+
     useEffect(() => {
-
-        // The way that React loads the login page before loading the main layout; this fixes it
-
         if (!navigationState?.key) return;
-
         const inAuthGroup = segments[0] === "(auth)";
         if (
-            // If the user is not signed in, the token is missing, and the initial segment is not anything in the auth group.
-            /* !user &&
-            !token &&
-            !inAuthGroup. */
-
             (!user || !token) &&
             !inAuthGroup
         ) {
@@ -37,8 +33,6 @@ function useProtectedRoute(user, token) { // Pass both user and token as paramet
 
         } else if (user && token && inAuthGroup) {
             // Redirect away from the sign-in page.
-
-
                 SecureStore.setItem("ACCESS_TOKEN", token);
                 router.replace("/");
 

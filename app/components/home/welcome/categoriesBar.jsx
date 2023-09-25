@@ -4,7 +4,7 @@ import {useRouter} from "expo-router";
 import {Box, Button, useColorMode} from "native-base";
 import {SIZES} from "../../../constants";
 
-const Categories = ({categories}) => {
+const CategoriesBar = ({categories}) => {
     const {
 
     } = useColorMode();
@@ -42,4 +42,4 @@ const Categories = ({categories}) => {
 
 
 
-export default Categories
+export default CategoriesBar
