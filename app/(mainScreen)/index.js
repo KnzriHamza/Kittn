@@ -133,6 +133,7 @@ const Home = () =>{
             .then(() => {
                 onClose();
                 getTodos();
+
             }).catch(()=>{
             errorMessage("Failed to Delete The Note")
         });
@@ -222,10 +223,10 @@ const Home = () =>{
                     <AlertDialog leastDestructiveRef={""} isOpen={isOpen} onClose={onClose}>
                         <AlertDialog.Content>
                             <AlertDialog.CloseButton />
-                            <AlertDialog.Header>Delete Customer</AlertDialog.Header>
+                            <AlertDialog.Header>Delete Note</AlertDialog.Header>
                             <AlertDialog.Body>
-                                This will remove all data relating to Alex. This action cannot be
-                                reversed. Deleted data can not be recovered.
+                                This will remove all data relating to This Note. This action cannot be
+                                reversed.
                             </AlertDialog.Body>
                             <AlertDialog.Footer>
                                 <Button.Group space={2}>
@@ -256,9 +257,9 @@ const Home = () =>{
 
 
                         <ScrollView
-                            h='95%'
+                            h='80%'
                         >
-                            <VStack space="6" h="90%" >
+                            <VStack space="6" >
                                 {isLoading ? ( // Us1 a conditional statement to render based on loading state
                                     <Box alignItems="center">
                                         <Box marginTop="24">
@@ -338,10 +339,10 @@ const Home = () =>{
             <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
                 <Modal.Content>
                     <Modal.CloseButton />
-                    <Modal.Header>Edit Todo</Modal.Header>
+                    <Modal.Header>Edit Note</Modal.Header>
                     <Modal.Body >
                         <FormControl>
-                            <FormControl.Label>Todo Title</FormControl.Label>
+                            <FormControl.Label>Note Title</FormControl.Label>
                             <Input
                                 defaultValue={selectedTodo ? selectedTodo.todoTitle : ''}
                                 onChangeText={newTitle =>setSelectedTodo((prevState) => ({
@@ -349,18 +350,8 @@ const Home = () =>{
                                     todoTitle: newTitle,
                                 }))}/>
                         </FormControl>
-                        <FormControl mt="3">
-                            <FormControl.Label>Todo Description</FormControl.Label>
-
-                            <TextArea width="100%" defaultValue={selectedTodo ? selectedTodo.todoMessage : ''} // for android and ios
-                                      w="100%" maxW="300" onChangeText={
-                                newMessage =>setSelectedTodo((prevState) => ({
-                                    ...prevState,
-                                    todoMessage: newMessage,
-                                }))}/>
-                        </FormControl>
                         <FormControl>
-                            <FormControl.Label>Todo Categorie</FormControl.Label>
+                            <FormControl.Label>Note Categorie</FormControl.Label>
                             <Box maxW="300">
                                 <Select
                                     minWidth="200" accessibilityLabel="Choose Service" placeholder="Choose Service" _selectedItem={{
@@ -374,8 +365,20 @@ const Home = () =>{
                                 </Select>
                             </Box>
                         </FormControl>
+
+                        <FormControl mt="3">
+                            <FormControl.Label>Note Description</FormControl.Label>
+
+                            <TextArea width="100%" defaultValue={selectedTodo ? selectedTodo.todoMessage : ''} // for android and ios
+                                      w="100%" maxW="300" onChangeText={
+                                newMessage =>setSelectedTodo((prevState) => ({
+                                    ...prevState,
+                                    todoMessage: newMessage,
+                                }))}/>
+                        </FormControl>
+
                         <FormControl>
-                            <FormControl.Label>Due Date</FormControl.Label>
+                            <FormControl.Label>Note Due Date</FormControl.Label>
                             <SafeAreaView>
                                   <Text>selected: {date.toLocaleString()}</Text>
                             </SafeAreaView>

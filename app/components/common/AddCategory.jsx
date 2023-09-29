@@ -108,7 +108,6 @@ const AddCategory = () => {
                 SetButtonLoading(false)
                 resetForm()
                 router.push('/categories');
-
             })
             .catch(function (error) {
                 SetSlideType("error")

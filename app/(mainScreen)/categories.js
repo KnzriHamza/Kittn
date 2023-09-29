@@ -9,7 +9,7 @@ import {
     Heading, HStack,
     Icon, IconButton,
     Input, Menu, Modal, Pressable, Select, Spacer, TextArea, useColorMode, useDisclose,
-    VStack, Text, Divider, Center, Skeleton, AlertDialog
+    VStack, Text, Divider, Center, Skeleton, AlertDialog, Spinner
 } from "native-base";
 import {AntDesign, MaterialIcons} from "@expo/vector-icons";
 import {useAuth} from "../context/ContextProvider";
@@ -58,9 +58,11 @@ const Categories = () =>{
             .then(({ data }) => {
                 setCategories(data.data)
                 console.error(categories)
+                setLoading(false)
             })
             .catch(() => {
                 console.log("route errors")
+                setLoading(false)
             });
     };
 
@@ -131,8 +133,8 @@ const Categories = () =>{
                         <AlertDialog.CloseButton />
                         <AlertDialog.Header>Delete Customer</AlertDialog.Header>
                         <AlertDialog.Body>
-                            {activeCategory}This will remove all data relating to Alex. This action cannot be
-                            reversed. Deleted data can not be recovered.
+                            This will remove all data relating to this Category. This action cannot be
+                            reversed.
                         </AlertDialog.Body>
                         <AlertDialog.Footer>
                             <Button.Group space={2}>
@@ -142,7 +144,7 @@ const Categories = () =>{
                                 <Button colorScheme="danger" onPress={()=>{
                                     console.log(activeCategory)
                                     deleteCategory(activeCategory)
-                                    onClose;
+                                    onClose();
                                 }}>
                                     Delete
                                 </Button>
@@ -204,10 +206,17 @@ const Categories = () =>{
                     <Text>Categories</Text>
                 </Heading>
 
-                <ScrollView height="90%" >
+                <ScrollView height="85%" >
                     <VStack space="6"  >
+                        {isLoading ? ( // Us1 a conditional statement to render based on loading state
+                            <Box alignItems="center">
+                                <Box marginTop="24">
+                                    <Spinner size="5xl" />
+                                </Box>
 
-                        {categories.map((item) => (
+                            </Box>
+                        ) : (
+                        categories.map((item) => (
                             <Center w="100%">
                                 <HStack  w="100%" maxW="400" borderWidth="0.5"  space={8} rounded="md" _dark={{
                                     borderColor: item.categoryColor+".500"
@@ -245,7 +254,7 @@ const Categories = () =>{
 
                                     </VStack>
                                 </HStack>
-                            </Center>))}
+                            </Center>)))}
                     </VStack>
                 </ScrollView>
             </VStack>
