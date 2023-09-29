@@ -34,7 +34,7 @@ const Layout = () => {
                                     backgroundColor: "transparent",
                                 }}
                             >
-                                <FontAwesome name="home" color={color} size={28}  />
+                                <FontAwesome name="sticky-note" color={color} size={28}  />
                             </View>
                         ),
                     }}
@@ -42,6 +42,7 @@ const Layout = () => {
                 <Tabs.Screen
                     name="categories"
                     options={{
+                        unmountOnBlur: true,
                         title: "",
                         headerShown: true,
                         href: {
@@ -56,7 +57,7 @@ const Layout = () => {
                                     backgroundColor: "transparent",
                                 }}
                             >
-                                <FontAwesome name="user" color={color} size={28} />
+                                <FontAwesome name="id-card" color={color} size={28} />
                             </View>
                         ),
                     }}

@@ -109,13 +109,15 @@ const UserProfile = () =>{
                     <VStack height="100%" space="3" >
 
                         <Center>
-                            <Avatar bg="green.500" size="48" source={{
-                                uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80"
-                            }}>
-                                AJ
-                            </Avatar>
+                            <Avatar size="48" marginRight="4" bg="amber.500" source={{
+                                uri: "https://w7.pngwing.com/pngs/340/946/png-transparent-avatar-user-computer-icons-software-developer-avatar-child-face-heroes.png"
+                            }}>{initials}</Avatar>
 
-                            <Text>{userName}</Text>
+
+
+                            <Box safeArea>
+                                <Heading><Text>{userName}</Text></Heading>
+                            </Box>
 
                         </Center>
 

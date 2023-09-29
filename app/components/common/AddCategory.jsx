@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react'
-import { View, Text } from 'react-native'
 
 
 
 import {
+    Text,
     Box,
     Radio,
     CheckIcon,
@@ -11,10 +11,10 @@ import {
     FormControl,
     Heading,
     Input,
-    Modal,
+    Link,
     Select,
     TextArea,
-    VStack, IconButton, HStack, Flex, Checkbox, Container, Button, Center, Alert, Slide, Spinner
+    VStack, IconButton, HStack, Flex, Checkbox, Container, Button, Center, Alert, Slide, Spinner, Spacer
 } from "native-base";
 import {AntDesign} from "@expo/vector-icons";
 import axiosClient from "../../axios-client";
@@ -26,6 +26,8 @@ const AddCategory = () => {
     const [isLoading, SetIsLoading] = useState(false);
     const [buttonLoading, SetButtonLoading] = useState(false);
     const [slideType, SetSlideType] = useState("");
+    const [errorForm, setErrorForm] = useState("");
+
 
     const [newCategory, setNewCategory] = useState({
         categoryTitle: '', // Initialize to an empty string
@@ -67,8 +69,22 @@ const AddCategory = () => {
         }));
     };
 
+    const resetForm = () => {
+        console.log("testt")
+        handleCategoryTitleChange("")
+        handleCategoryColorChange("")
+        handleCategoryIconChange("")
+        setNewCategory({
+            categoryTitle: '',
+            categoryColor: '',
+            categoryIcon: ''
+        });
+    };
+
 
     const submitNewCategory = () => {
+
+
         SetButtonLoading(true)
         // Access newCategory to get the category title and color
         const payload = {
@@ -77,13 +93,22 @@ const AddCategory = () => {
             categoryIcon: newCategory.categoryIcon,
 
         };
+
+        if (payload.categoryName === '' || payload.categoryColor === '' || payload.categoryIcon === '') {
+            setErrorForm('Please fill all the inputs');
+            SetButtonLoading(false)
+            return;
+        }
+
         axiosClient
             .post("/todoCategories", payload)
             .then(() => {
                 SetSlideType("success")
                 setPopUp()
                 SetButtonLoading(false)
+                resetForm()
                 router.push('/categories');
+
             })
             .catch(function (error) {
                 SetSlideType("error")
@@ -103,12 +128,22 @@ const AddCategory = () => {
                 <VStack space="6" width="100%">
                     <Heading size="md">Add a Category</Heading>
                     <Divider   />
+                    <HStack>
+                        <Text color="red.500">Tessf</Text>
+                        <Spacer></Spacer>
+                        <Link _text={{
+                            fontSize: "md",
+                        }} href="" onPress={resetForm} isUnderlined >
+                            Clear Form
+                        </Link>
+                    </HStack>
+
                     <FormControl>
-                        <FormControl.Label>Category name</FormControl.Label>
-                        <Input isRequired onChangeText={handleCategoryTitleChange} />
+                        <FormControl.Label>Category name *</FormControl.Label>
+                        <Input isRequired onChangeText={handleCategoryTitleChange} defaultValue={newCategory.categoryTitle} />
                     </FormControl>
                     <FormControl>
-                        <FormControl.Label>Select a Color</FormControl.Label>
+                        <FormControl.Label>Select a Color *</FormControl.Label>
                         <Container>
                             <VStack space="8" alignItems="center">
                                 <Radio.Group >
@@ -134,7 +169,7 @@ const AddCategory = () => {
                     </FormControl>
 
                     <FormControl>
-                        <FormControl.Label>Select an Icon</FormControl.Label>
+                        <FormControl.Label>Select an Icon *</FormControl.Label>
                         <Center>
                             <VStack space="3">
                                 <HStack space={4} alignItems="center">

@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {SafeAreaView, Text} from 'react-native';
-import {Link, Stack, useRouter} from "expo-router";
+import {Link, router, Stack, useRouter} from "expo-router";
 import {COLORS} from "../constants";
 import {
     AlertDialog,
@@ -62,9 +62,7 @@ const Home = () =>{
     const onChange = (event, selectedDate) => {
         setDate(selectedDate);
     };
-    useEffect(() => {
-        errorMessage()
-    }, []);
+
 
 
     useEffect(() => {
@@ -124,7 +122,7 @@ const Home = () =>{
             })
             .catch(() => {
                 setLoading(false)
-                errorMessage(error)
+                errorMessage("Failed to get the Notes, Check your internet Connection")
             });
     };
 
@@ -135,7 +133,9 @@ const Home = () =>{
             .then(() => {
                 onClose();
                 getTodos();
-            }).catch();
+            }).catch(()=>{
+            errorMessage("Failed to Delete The Note")
+        });
 
     };
 
@@ -178,6 +178,7 @@ const Home = () =>{
 
             })
             .catch((error) => {
+                errorMessage("Failed to get the Categories, Check you internet connetion")
 
             });
     };
@@ -205,7 +206,7 @@ const Home = () =>{
                                     }}>{initials}</Avatar>
                                 </Pressable>;
                             }}>
-                                <Link href="/userProfile"><Menu.Item>Profile</Menu.Item></Link>
+                                <Menu.Item onPress={()=>{router.push('/userProfile')}}>Profile</Menu.Item>
                                 <Menu.Item onPress={logout}>Logout</Menu.Item>
 
                             </Menu>
@@ -233,7 +234,7 @@ const Home = () =>{
                                     </Button>
                                     <Button colorScheme="danger" onPress={()=>{
                                         deleteTodo(deletedTodo)
-                                        onClose;
+                                        onClose();
 
                                     }}>
 
@@ -251,7 +252,6 @@ const Home = () =>{
 
 
                     </Heading>
-                    <HStack><Link href="/newNote">New Note</Link></HStack>
                     <CategoriesBar categories={categories}></CategoriesBar>
 
 

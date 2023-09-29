@@ -103,7 +103,8 @@ const NewCategory = () =>{
                                 }}>{initials}</Avatar>
                             </Pressable>;
                         }}>
-                            <Menu.Item ><Link href="/app/(mainScreen)/categories">Profile</Link></Menu.Item>
+                            <Menu.Item onPress={()=>{router.push('/userProfile')}}>Profile</Menu.Item>
+
                             <Menu.Item onPress={logout}>Logout</Menu.Item>
 
                         </Menu>

@@ -11,7 +11,7 @@ import {
     HStack,
     Input,
     Select,
-    Spinner,
+    Spinner, Text,
     TextArea,
     VStack
 } from "native-base";
@@ -25,6 +25,7 @@ const AddNote = () => {
     const [isLoading, SetIsLoading] = useState(false);
     const [buttonLoading, SetButtonLoading] = useState(false);
     const [slideType, SetSlideType] = useState("")
+    const [errorForm, setErrorForm] = useState("");
 
     const [categories, setCategories] = useState([]);
 
@@ -46,6 +47,8 @@ const AddNote = () => {
         getCategories()
 
     }, []);
+
+
 
 
 
@@ -134,6 +137,13 @@ const AddNote = () => {
             category_id: newNote.category,
 
         };
+
+        if (payload.todoTitle === '' || payload.todoMessage === '' || payload.todoDate === '' || payload.todoPriority === '' || payload.category_id === '') {
+            setErrorForm('Please fill all the inputs');
+            SetButtonLoading(false)
+            return;
+        }
+
         console.log(payload)
         axiosClient
             .post("/todos", payload)
@@ -161,6 +171,7 @@ const AddNote = () => {
                     <VStack space="3" width="100%">
                         <Heading size="md">Add a New Note</Heading>
                         <Divider   />
+                        <Text color="red.500">{errorForm}</Text>
                         <FormControl>
                             <FormControl.Label>Note Title</FormControl.Label>
                             <Input flex={1} onChangeText={newTitle =>setNewNote((prevState) => ({
